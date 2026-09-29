@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Projectile Motion — Practice Range</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F3F5F3;
+    --panel: #FFFFFF;
+    --panel-alt: #EEF2EF;
+    --grid-line: rgba(22,36,59,0.09);
+    --grid-line-strong: rgba(22,36,59,0.16);
+    --ink: #16243B;
+    --ink-soft: #52627A;
+    --ink-faint: #8895A7;
+    --gold: #D99A3E;
+    --gold-ink: #7A5417;
+    --crimson: #C0392B;
+    --teal: #278267;
+    --teal-bg: #E4F3EC;
+    --crimson-bg: #FBEAE8;
+    --border: #D7DEDC;
+    --border-strong: #16243B;
+    --font-serif: 'Fraunces', serif;
+    --font-sans: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10192A;
+      --panel: #16243B;
+      --panel-alt: #1C2E4A;
+      --grid-line: rgba(230,236,240,0.08);
+      --grid-line-strong: rgba(230,236,240,0.16);
+      --ink: #EDF1F5;
+      --ink-soft: #A9B7CC;
+      --ink-faint: #728098;
+      --gold: #E9B663;
+      --gold-ink: #F4D9A6;
+      --crimson: #E37368;
+      --teal: #5FC79A;
+      --teal-bg: rgba(95,199,154,0.14);
+      --crimson-bg: rgba(227,115,104,0.14);
+      --border: #2A3B57;
+      --border-strong: #EDF1F5;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #10192A;
+    --panel: #16243B;
+    --panel-alt: #1C2E4A;
+    --grid-line: rgba(230,236,240,0.08);
+    --grid-line-strong: rgba(230,236,240,0.16);
+    --ink: #EDF1F5;
+    --ink-soft: #A9B7CC;
+    --ink-faint: #728098;
+    --gold: #E9B663;
+    --gold-ink: #F4D9A6;
+    --crimson: #E37368;
+    --teal: #5FC79A;
+    --teal-bg: rgba(95,199,154,0.14);
+    --crimson-bg: rgba(227,115,104,0.14);
+    --border: #2A3B57;
+    --border-strong: #EDF1F5;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+  }
+  body {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  img, svg, canvas { max-width: 100%; }
+
+  a { color: inherit; }
+
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+
+  /* ---------- Header / Hero ---------- */
+  header.hero {
+    border-bottom: 2px solid var(--border-strong);
+    background: var(--panel);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-inner {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 34px 20px 0 20px;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 24px;
+    align-items: end;
+  }
+  @media (max-width: 700px) {
+    .hero-inner { grid-template-columns: 1fr; }
+  }
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    color: var(--ink-soft);
+    margin: 0 0 10px 0;
+  }
+  h1.title {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: clamp(2rem, 5vw, 3.1rem);
+    line-height: 1.02;
+    margin: 0 0 14px 0;
+    letter-spacing: -0.01em;
+  }
+  h1.title em { font-style: italic; font-weight: 500; color: var(--gold-ink); }
+  .hero-sub {
+    font-size: 1.02rem;
+    color: var(--ink-soft);
+    max-width: 46ch;
+    line-height: 1.55;
+    margin: 0 0 26px 0;
+  }
+  .hero-demo {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px;
+  }
+  .hero-demo canvas { display: block; width: 100%; height: 140px; }
+  .hero-demo-cap {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    margin-top: 6px;
+    text-align: center;
+  }
+
+  /* ---------- Nav ---------- */
+  nav.tabs {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 20;
+    background: var(--panel);
+    border-bottom: 2px solid var(--border-strong);
+  }
+  .tabs-inner {
+    max-width: 920px;
+    margin: 0 auto;
+    display: flex;
+    overflow-x: auto;
+    padding: 0 20px;
+  }
+  .tab-btn {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 0.88rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--ink-soft);
+    padding: 14px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn[aria-selected="true"] {
+    color: var(--ink);
+    border-bottom-color: var(--gold);
+  }
+  .tab-btn .num {
+    font-family: var(--font-mono);
+    color: var(--ink-faint);
+    margin-right: 6px;
+    font-size: 0.78rem;
+  }
+
+  main { max-width: 920px; margin: 0 auto; padding: 32px 20px 80px 20px; }
+  .panel-section { display: none; }
+  .panel-section.active { display: block; }
+
+  h2.section-title {
+    font-family: var(--font-serif);
+    font-size: 1.7rem;
+    font-weight: 600;
+    margin: 0 0 6px 0;
+  }
+  p.section-sub {
+    color: var(--ink-soft);
+    margin: 0 0 26px 0;
+    max-width: 62ch;
+    line-height: 1.5;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  .card h3 {
+    font-family: var(--font-serif);
+    font-size: 1.18rem;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+  }
+
+  /* ---------- Concept recap grid ---------- */
+  .recap-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 640px) { .recap-grid { grid-template-columns: 1fr; } }
+  .recap-item {
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    background: var(--panel);
+    padding: 14px 16px;
+    border-radius: 2px;
+  }
+  .recap-item .label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    margin-bottom: 4px;
+  }
+  .recap-item .eq {
+    font-family: var(--font-mono);
+    font-size: 1.05rem;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .recap-item p { margin: 0; font-size: 0.9rem; color: var(--ink-soft); line-height: 1.4; }
+
+  /* Flip check cards */
+  .check-card {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--panel);
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    cursor: pointer;
+  }
+  .check-card .q { font-weight: 600; margin-bottom: 4px; }
+  .check-card .a {
+    display: none;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+  .check-card.open .a { display: block; }
+  .check-card .hint {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+  }
+
+  /* ---------- Vector tool ---------- */
+  .vec-tool {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 20px;
+  }
+  @media (max-width: 700px) { .vec-tool { grid-template-columns: 1fr; } }
+  .vec-controls label {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    margin: 12px 0 4px 0;
+  }
+  .vec-controls input[type=range] { width: 100%; accent-color: var(--gold-ink); }
+  .vec-readout {
+    font-family: var(--font-mono);
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    border-radius: 3px;
+    font-size: 0.92rem;
+    margin-top: 14px;
+    line-height: 1.7;
+  }
+  .vec-canvas-wrap { border: 1px solid var(--border); background: var(--panel-alt); border-radius: 3px; }
+  canvas#vecCanvas { width: 100%; height: 260px; display: block; }
+  .preset-btn {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    background: none;
+    border: 1px solid var(--border-strong);
+    color: var(--ink);
+    padding: 6px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  .preset-btn:hover { background: var(--panel-alt); }
+
+  /* ---------- Quiz ---------- */
+  .quiz-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+  }
+  .score-pill {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    border: 1px solid var(--border-strong);
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+  .progress-track {
+    height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 22px;
+  }
+  .progress-fill { height: 100%; background: var(--gold); width: 0%; transition: width 0.3s ease; }
+  .qnum {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+  .qtext { font-size: 1.08rem; font-weight: 600; margin-bottom: 16px; line-height: 1.45; }
+  .options { display: grid; gap: 10px; }
+  .opt-btn {
+    text-align: left;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.96rem;
+    color: var(--ink);
+    display: flex;
+    gap: 10px;
+  }
+  .opt-btn:hover { border-color: var(--border-strong); }
+  .opt-btn .tag {
+    font-family: var(--font-mono);
+    color: var(--ink-faint);
+    flex-shrink: 0;
+  }
+  .opt-btn.correct { background: var(--teal-bg); border-color: var(--teal); }
+  .opt-btn.incorrect { background: var(--crimson-bg); border-color: var(--crimson); }
+  .opt-btn:disabled { cursor: default; }
+  .explain {
+    display: none;
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: var(--panel-alt);
+    border-left: 3px solid var(--gold);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .explain.show { display: block; }
+  .quiz-actions { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+  button.primary {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  button.primary:hover { opacity: 0.88; }
+  button.secondary {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: none;
+    color: var(--ink);
+    border: 1px solid var(--border-strong);
+    padding: 10px 18px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  button.secondary:hover { background: var(--panel-alt); }
+  button:disabled { opacity: 0.45; cursor: default; }
+
+  .quiz-done {
+    display: none;
+    text-align: center;
+    padding: 30px 10px;
+  }
+  .quiz-done.show { display: block; }
+  .quiz-done .big {
+    font-family: var(--font-serif);
+    font-size: 2.4rem;
+    font-weight: 600;
+  }
+
+  /* ---------- Problem solving ---------- */
+  .prob-type-select { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .prob-type-btn {
+    font-family: var(--font-sans);
+    font-size: 0.84rem;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border-strong);
+    background: var(--panel);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .prob-type-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  .prob-statement { font-size: 1.05rem; line-height: 1.6; margin-bottom: 18px; }
+  .prob-statement .val { font-family: var(--font-mono); color: var(--gold-ink); font-weight: 600; }
+  .prob-answer-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .prob-answer-row input[type=number] {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    padding: 9px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    width: 140px;
+    background: var(--panel);
+    color: var(--ink);
+  }
+  .prob-unit { font-family: var(--font-mono); color: var(--ink-soft); }
+  .feedback-line { margin-top: 12px; font-weight: 600; }
+  .feedback-line.ok { color: var(--teal); }
+  .feedback-line.no { color: var(--crimson); }
+  .steps {
+    display: none;
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: var(--panel-alt);
+    border-left: 3px solid var(--gold);
+    font-size: 0.92rem;
+    line-height: 1.7;
+    font-family: var(--font-mono);
+    white-space: pre-line;
+  }
+  .steps.show { display: block; }
+
+  /* ---------- Simulator ---------- */
+  .sim-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+  .sim-controls {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  @media (max-width: 640px) { .sim-controls { grid-template-columns: 1fr; } }
+  .sim-controls label { font-size: 0.82rem; color: var(--ink-soft); display: block; margin-bottom: 6px; }
+  .sim-controls .val-out { font-family: var(--font-mono); color: var(--ink); font-weight: 600; }
+  .sim-controls input[type=range] { width: 100%; accent-color: var(--gold-ink); }
+  .sim-canvas-wrap {
+    border: 1px solid var(--border);
+    background: var(--panel-alt);
+    border-radius: 3px;
+    position: relative;
+  }
+  canvas#simCanvas { width: 100%; height: 360px; display: block; }
+  .sim-readouts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+  }
+  @media (max-width: 640px) { .sim-readouts { grid-template-columns: repeat(2, 1fr); } }
+  .readout-box {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    padding: 10px 12px;
+    border-radius: 3px;
+    text-align: center;
+  }
+  .readout-box .k { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-faint); }
+  .readout-box .v { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 600; margin-top: 2px; }
+  .guess-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 14px 0; }
+  .guess-row input { font-family: var(--font-mono); width: 110px; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 3px; background: var(--panel); color: var(--ink); }
+
+  footer {
+    border-top: 2px solid var(--border-strong);
+    padding: 22px 20px 40px 20px;
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 0.82rem;
+    font-family: var(--font-mono);
+  }
+
+  :focus-visible { outline: 2px solid var(--gold-ink); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <p class="kicker">PHYSICS · PROJECTILE MOTION</p>
+      <h1 class="title">Every launch draws<br>a <em>parabola.</em></h1>
+      <p class="hero-sub">Work through vectors, components, and full projectile problems before your test — with instant feedback and a launch simulator you can experiment on.</p>
+    </div>
+    <div class="hero-demo">
+      <canvas id="heroCanvas"></canvas>
+      <div class="hero-demo-cap">horizontal velocity constant · vertical velocity changes at 9.8 m/s²</div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tabs-inner" role="tablist">
+    <button class="tab-btn" data-tab="concepts" role="tab" aria-selected="true"><span class="num">01</span>Concepts &amp; Vectors</button>
+    <button class="tab-btn" data-tab="quiz" role="tab" aria-selected="false"><span class="num">02</span>Multiple Choice</button>
+    <button class="tab-btn" data-tab="problems" role="tab" aria-selected="false"><span class="num">03</span>Problem Solving</button>
+    <button class="tab-btn" data-tab="sim" role="tab" aria-selected="false"><span class="num">04</span>Launch Simulator</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ============ TAB 1: CONCEPTS ============ -->
+  <section class="panel-section active" id="panel-concepts">
+    <h2 class="section-title">The rules before the math</h2>
+    <p class="section-sub">Four facts carry almost every problem on your test. Get comfortable with these first.</p>
+
+    <div class="recap-grid">
+      <div class="recap-item">
+        <div class="label">ACCELERATION</div>
+        <div class="eq">a = 9.8 m/s², downward only</div>
+        <p>Gravity is the only force acting on a projectile in flight. It never points sideways.</p>
+      </div>
+      <div class="recap-item">
+        <div class="label">HORIZONTAL VELOCITY</div>
+        <div class="eq">vₓ = constant</div>
+        <p>No horizontal acceleration means horizontal speed never changes during the flight.</p>
+      </div>
+      <div class="recap-item">
+        <div class="label">COMPONENTS</div>
+        <div class="eq">vₓ₀ = v·cos(θ)&nbsp;&nbsp; vᵧ₀ = v·sin(θ)</div>
+        <p>Break the launch velocity into independent horizontal and vertical pieces.</p>
+      </div>
+      <div class="recap-item">
+        <div class="label">AT THE PEAK</div>
+        <div class="eq">vᵧ = 0, vₓ ≠ 0</div>
+        <p>Vertical velocity is momentarily zero at the top — the object is still moving horizontally.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Quick self-check</h3>
+      <p class="section-sub" style="margin-bottom:14px;">Tap a card to reveal the answer.</p>
+
+      <div class="check-card" data-open="false">
+        <div class="q">What is the general rule for adding two vectors?</div>
+        <span class="hint">tap to reveal ▸</span>
+        <div class="a">Place them tip-to-tail (slide the second vector's tail to the first vector's tip) and draw the resultant from the very start to the very end. Or add matching components: (Ax+Bx, Ay+By).</div>
+      </div>
+
+      <div class="check-card" data-open="false">
+        <div class="q">A ball is launched horizontally at 20 m/s and another straight-down-dropped ball leaves your hand at the same instant, same height. Which lands first?</div>
+        <span class="hint">tap to reveal ▸</span>
+        <div class="a">Neither — they land at the same time. Horizontal velocity has zero effect on vertical motion, so both fall under gravity alone and hit the ground together.</div>
+      </div>
+
+      <div class="check-card" data-open="false">
+        <div class="q">Two balls are launched horizontally from the same cliff — one faster than the other. Which hits the ground first?</div>
+        <span class="hint">tap to reveal ▸</span>
+        <div class="a">Neither — same time. Time to fall only depends on height and gravity (Δy = ½at²), not on horizontal speed.</div>
+      </div>
+
+      <div class="check-card" data-open="false">
+        <div class="q">Same launch speed, two different angles (one steep, one shallow, neither 45°). Same time of flight or different?</div>
+        <span class="hint">tap to reveal ▸</span>
+        <div class="a">Different, unless the two angles add to 90° — then the range is the same, but the steeper angle always has a longer time of flight (bigger vᵧ₀ means more time to rise and fall).</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Vector addition sandbox</h3>
+      <p class="section-sub" style="margin-bottom:0;">Build two displacement vectors and watch the resultant form. Try the review-sheet walk: 5 m north, then 3 m east.</p>
+      <div class="vec-tool" style="margin-top:16px;">
+        <div class="vec-controls">
+          <label>Vector A — magnitude: <span class="val-out" id="magAOut">5.0</span> m</label>
+          <input type="range" id="magA" min="0" max="10" step="0.5" value="5">
+          <label>Vector A — direction: <span class="val-out" id="angAOut">90</span>° (0° = east, 90° = north)</label>
+          <input type="range" id="angA" min="0" max="360" step="5" value="90">
+
+          <label>Vector B — magnitude: <span class="val-out" id="magBOut">3.0</span> m</label>
+          <input type="range" id="magB" min="0" max="10" step="0.5" value="3">
+          <label>Vector B — direction: <span class="val-out" id="angBOut">0</span>° (0° = east, 90° = north)</label>
+          <input type="range" id="angB" min="0" max="360" step="5" value="0">
+
+          <button class="preset-btn" id="loadReviewPreset">Load review-sheet walk (5 m N, 3 m E)</button>
+
+          <div class="vec-readout" id="vecReadout"></div>
+        </div>
+        <div class="vec-canvas-wrap">
+          <canvas id="vecCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TAB 2: QUIZ ============ -->
+  <section class="panel-section" id="panel-quiz">
+    <h2 class="section-title">Multiple choice practice</h2>
+    <p class="section-sub">Conceptual questions in the same style as your test — new numbers and scenarios each round. Explanations follow every answer.</p>
+
+    <div class="quiz-top">
+      <span class="score-pill" id="quizScore">Score: 0 / 0</span>
+      <button class="secondary" id="restartQuiz">Shuffle a new set</button>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="quizProgress"></div></div>
+
+    <div class="card" id="quizCard">
+      <div class="qnum" id="quizNum">Question 1 of 12</div>
+      <div class="qtext" id="quizQ"></div>
+      <div class="options" id="quizOptions"></div>
+      <div class="explain" id="quizExplain"></div>
+      <div class="quiz-actions">
+        <button class="primary" id="quizNext" disabled>Next question</button>
+      </div>
+    </div>
+
+    <div class="quiz-done" id="quizDone">
+      <div class="big" id="quizDoneScore">10 / 12</div>
+      <p class="section-sub" style="margin:8px auto 20px;">Nice work. Missed a few? Shuffle a new set and try those concepts again.</p>
+      <button class="primary" id="quizRedo">Shuffle a new set</button>
+    </div>
+  </section>
+
+  <!-- ============ TAB 3: PROBLEMS ============ -->
+  <section class="panel-section" id="panel-problems">
+    <h2 class="section-title">Problem-solving practice</h2>
+    <p class="section-sub">Pick a problem type. Numbers regenerate every time so you can practice the same skill repeatedly. Show all your own work on paper — these mirror the free-response section.</p>
+
+    <div class="prob-type-select">
+      <button class="prob-type-btn" data-type="horizontalCliff" aria-pressed="true">Horizontal launch off a height</button>
+      <button class="prob-type-btn" data-type="angleGround">Launched at an angle</button>
+      <button class="prob-type-btn" data-type="components">Velocity components</button>
+    </div>
+
+    <div class="card">
+      <div class="prob-statement" id="probStatement"></div>
+      <div class="prob-answer-row" id="probAnswerRow"></div>
+      <div class="feedback-line" id="probFeedback"></div>
+      <div class="steps" id="probSteps"></div>
+      <div class="quiz-actions">
+        <button class="primary" id="probCheck">Check answer</button>
+        <button class="secondary" id="probSolution">Show solution</button>
+        <button class="secondary" id="probNew">New problem</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TAB 4: SIMULATOR ============ -->
+  <section class="panel-section" id="panel-sim">
+    <h2 class="section-title">Launch simulator</h2>
+    <p class="section-sub">Set the launch conditions, guess where it will land, then fire and check yourself.</p>
+
+    <div class="card">
+      <div class="sim-grid">
+        <div class="sim-controls">
+          <div>
+            <label>Launch speed: <span class="val-out" id="simSpeedOut">20</span> m/s</label>
+            <input type="range" id="simSpeed" min="5" max="40" step="1" value="20">
+          </div>
+          <div>
+            <label>Launch angle: <span class="val-out" id="simAngleOut">35</span>°</label>
+            <input type="range" id="simAngle" min="0" max="85" step="1" value="35">
+          </div>
+          <div>
+            <label>Launch height: <span class="val-out" id="simHeightOut">0</span> m</label>
+            <input type="range" id="simHeight" min="0" max="25" step="1" value="0">
+          </div>
+        </div>
+
+        <div class="guess-row">
+          <label for="simGuess" style="margin:0; font-size:0.88rem; color:var(--ink-soft);">Guess the horizontal range:</label>
+          <input type="number" id="simGuess" placeholder="meters">
+          <span class="prob-unit">m</span>
+        </div>
+
+        <div class="sim-canvas-wrap">
+          <canvas id="simCanvas"></canvas>
+        </div>
+
+        <div class="sim-readouts">
+          <div class="readout-box"><div class="k">TIME</div><div class="v" id="simT">0.0 s</div></div>
+          <div class="readout-box"><div class="k">HEIGHT</div><div class="v" id="simY">0.0 m</div></div>
+          <div class="readout-box"><div class="k">DISTANCE</div><div class="v" id="simX">0.0 m</div></div>
+          <div class="readout-box"><div class="k">vᵧ</div><div class="v" id="simVy">0.0 m/s</div></div>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="primary" id="simLaunch">Launch</button>
+          <button class="secondary" id="simReset">Reset</button>
+        </div>
+        <div class="feedback-line" id="simFeedback"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  BUILT FOR PROJECTILE MOTION REVIEW · g = 9.8 m/s²
+</footer>
+
+<script>
+(function(){
+
+  /* ============ TAB SWITCHING ============ */
+  var tabBtns = document.querySelectorAll('.tab-btn');
+  var panels = document.querySelectorAll('.panel-section');
+  tabBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      tabBtns.forEach(function(b){ b.setAttribute('aria-selected','false'); });
+      btn.setAttribute('aria-selected','true');
+      var target = btn.getAttribute('data-tab');
+      panels.forEach(function(p){ p.classList.remove('active'); });
+      document.getElementById('panel-' + target).classList.add('active');
+      window.dispatchEvent(new CustomEvent('tabchange', { detail: target }));
+    });
+  });
+
+  /* ============ HERO CANVAS DEMO (auto-looping) ============ */
+  (function heroDemo(){
+    var canvas = document.getElementById('heroCanvas');
+    var ctx = canvas.getContext('2d');
+    function resize(){
+      var rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * devicePixelRatio;
+      canvas.height = rect.height * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    var g = 9.8, v0 = 14, angle = 42 * Math.PI/180;
+    var vx = v0*Math.cos(angle), vy0 = v0*Math.sin(angle);
+    var tFlight = 2*vy0/g;
+    var range = vx*tFlight;
+    var t = 0;
+    var rootStyle = getComputedStyle(document.documentElement);
+
+    function color(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+    function frame(){
+      var rect = canvas.getBoundingClientRect();
+      var W = rect.width, H = rect.height;
+      ctx.clearRect(0,0,W,H);
+      var padX = 12, padY = 14;
+      var scaleX = (W - padX*2) / range;
+      var maxY = (vy0*vy0)/(2*g);
+      var scaleY = (H - padY*2) / maxY;
+      var scale = Math.min(scaleX, scaleY);
+      var baseY = H - padY;
+
+      // trajectory
+      ctx.beginPath();
+      ctx.strokeStyle = color('--grid-line-strong');
+      ctx.lineWidth = 1.5;
+      for (var tt=0; tt<=tFlight; tt+=tFlight/60){
+        var x = vx*tt, y = vy0*tt - 0.5*g*tt*tt;
+        var px = padX + x*scale, py = baseY - y*scale;
+        if (tt===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+
+      // ground
+      ctx.strokeStyle = color('--border-strong');
+      ctx.beginPath(); ctx.moveTo(0,baseY); ctx.lineTo(W,baseY); ctx.stroke();
+
+      // ball
+      var xb = vx*t, yb = vy0*t - 0.5*g*t*t;
+      var pxb = padX + xb*scale, pyb = baseY - yb*scale;
+      ctx.beginPath();
+      ctx.fillStyle = color('--gold');
+      ctx.arc(pxb, pyb, 5, 0, Math.PI*2);
+      ctx.fill();
+
+      t += tFlight/80;
+      if (t > tFlight) t = 0;
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+
+  /* ============ CHECK CARDS ============ */
+  document.querySelectorAll('.check-card').forEach(function(card){
+    card.addEventListener('click', function(){
+      card.classList.toggle('open');
+    });
+  });
+
+  /* ============ VECTOR SANDBOX ============ */
+  (function vectorTool(){
+    var magA = document.getElementById('magA'), angA = document.getElementById('angA');
+    var magB = document.getElementById('magB'), angB = document.getElementById('angB');
+    var magAOut = document.getElementById('magAOut'), angAOut = document.getElementById('angAOut');
+    var magBOut = document.getElementById('magBOut'), angBOut = document.getElementById('angBOut');
+    var canvas = document.getElementById('vecCanvas');
+    var ctx = canvas.getContext('2d');
+    var readout = document.getElementById('vecReadout');
+
+    function color(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+    function resize(){
+      var rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * devicePixelRatio;
+      canvas.height = rect.height * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+      draw();
+    }
+    window.addEventListener('resize', resize);
+    window.addEventListener('tabchange', function(e){ if (e.detail === 'concepts') resize(); });
+
+    function toXY(mag, angDeg){
+      var rad = angDeg * Math.PI/180;
+      return { x: mag*Math.cos(rad), y: mag*Math.sin(rad) };
+    }
+
+    function drawArrow(fromX, fromY, toX, toY, strokeColor){
+      ctx.strokeStyle = strokeColor;
+      ctx.fillStyle = strokeColor;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(fromX, fromY);
+      ctx.lineTo(toX, toY);
+      ctx.stroke();
+      var angle = Math.atan2(toY-fromY, toX-fromX);
+      var headLen = 10;
+      ctx.beginPath();
+      ctx.moveTo(toX, toY);
+      ctx.lineTo(toX - headLen*Math.cos(angle - Math.PI/6), toY - headLen*Math.sin(angle - Math.PI/6));
+      ctx.lineTo(toX - headLen*Math.cos(angle + Math.PI/6), toY - headLen*Math.sin(angle + Math.PI/6));
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function draw(){
+      var rect = canvas.getBoundingClientRect();
+      var W = rect.width, H = rect.height;
+      ctx.clearRect(0,0,W,H);
+
+      var a = toXY(parseFloat(magA.value), parseFloat(angA.value));
+      var b = toXY(parseFloat(magB.value), parseFloat(angB.value));
+      var r = { x: a.x+b.x, y: a.y+b.y };
+
+      var maxExtent = Math.max(1, Math.abs(a.x)+Math.abs(b.x), Math.abs(a.y)+Math.abs(b.y), Math.abs(r.x), Math.abs(r.y), parseFloat(magA.value), parseFloat(magB.value));
+      var cx = W/2, cy = H/2;
+      var scale = (Math.min(W,H)/2 - 30) / maxExtent;
+
+      // axes
+      ctx.strokeStyle = color('--grid-line-strong');
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+
+      function toPx(pt){ return { x: cx + pt.x*scale, y: cy - pt.y*scale }; }
+
+      var pA = toPx(a);
+      var pB_fromA = toPx({x:a.x+b.x, y:a.y+b.y});
+      var pR = toPx(r);
+
+      // A
+      drawArrow(cx, cy, pA.x, pA.y, color('--crimson'));
+      // B placed tip-to-tail after A (dashed guide)
+      ctx.setLineDash([4,3]);
+      drawArrow(pA.x, pA.y, pB_fromA.x, pB_fromA.y, color('--ink-faint'));
+      ctx.setLineDash([]);
+      // Resultant
+      drawArrow(cx, cy, pR.x, pR.y, color('--teal'));
+
+      // origin dot
+      ctx.fillStyle = color('--ink');
+      ctx.beginPath(); ctx.arc(cx,cy,3,0,Math.PI*2); ctx.fill();
+    }
+
+    function update(){
+      magAOut.textContent = parseFloat(magA.value).toFixed(1);
+      angAOut.textContent = angA.value;
+      magBOut.textContent = parseFloat(magB.value).toFixed(1);
+      angBOut.textContent = angB.value;
+
+      var a = toXY(parseFloat(magA.value), parseFloat(angA.value));
+      var b = toXY(parseFloat(magB.value), parseFloat(angB.value));
+      var r = { x: a.x+b.x, y: a.y+b.y };
+      var mag = Math.sqrt(r.x*r.x + r.y*r.y);
+      var dir = Math.atan2(r.y, r.x) * 180/Math.PI;
+      if (dir < 0) dir += 360;
+
+      readout.innerHTML =
+        'A = (' + a.x.toFixed(2) + ', ' + a.y.toFixed(2) + ')\n' +
+        'B = (' + b.x.toFixed(2) + ', ' + b.y.toFixed(2) + ')\n' +
+        'A + B = (' + r.x.toFixed(2) + ', ' + r.y.toFixed(2) + ')\n' +
+        'Resultant magnitude: ' + mag.toFixed(2) + '\n' +
+        'Resultant direction: ' + dir.toFixed(1) + '° from east';
+      readout.style.whiteSpace = 'pre';
+      draw();
+    }
+
+    [magA, angA, magB, angB].forEach(function(el){
+      el.addEventListener('input', update);
+    });
+
+    document.getElementById('loadReviewPreset').addEventListener('click', function(){
+      magA.value = 5; angA.value = 90;
+      magB.value = 3; angB.value = 0;
+      update();
+    });
+
+    resize();
+    update();
+  })();
+
+  /* ============ MULTIPLE CHOICE QUIZ ============ */
+  (function quiz(){
+    var bank = [
+      {
+        q: "A basketball is thrown at an angle above the horizontal. At the very top of its arc, what is true about its velocity and acceleration?",
+        options: [
+          "Both velocity and acceleration are zero",
+          "Velocity is zero; acceleration is 9.8 m/s² downward",
+          "Velocity is horizontal; acceleration is 9.8 m/s² downward",
+          "Velocity is horizontal; acceleration is zero"
+        ],
+        correct: 2,
+        explain: "At the peak, vertical velocity is momentarily zero but horizontal velocity is unchanged, so overall velocity is purely horizontal. Gravity never turns off — it's still pulling down at 9.8 m/s²."
+      },
+      {
+        q: "A dart is thrown at 25° above horizontal. Throughout the flight, its horizontal velocity component:",
+        options: ["Increases continuously", "Decreases continuously", "Remains constant", "First increases, then decreases"],
+        correct: 2,
+        explain: "There is no horizontal force (ignoring air resistance), so horizontal acceleration is zero and horizontal velocity never changes."
+      },
+      {
+        q: "Vector E points south and vector F points west. What direction does E + F point?",
+        options: ["Northeast", "Northwest", "Southeast", "Southwest"],
+        correct: 3,
+        explain: "South plus west combine into a resultant pointing between the two — southwest."
+      },
+      {
+        q: "A frisbee is launched from ground level at 50° with initial speed v. What is its vertical velocity component?",
+        options: ["v", "v·tan(50°)", "v·cos(50°)", "v·sin(50°)"],
+        correct: 3,
+        explain: "The vertical component of a launch velocity is always v·sin(angle), measuring how much of the speed points straight up."
+      },
+      {
+        q: "A water balloon is launched at 40° above horizontal, ignoring air resistance. Which velocity component(s) change during the flight?",
+        options: ["Only the horizontal component", "Only the vertical component", "Both components", "Neither component"],
+        correct: 1,
+        explain: "Gravity acts only vertically, so only the vertical velocity component changes (decreasing, hitting zero, then increasing downward). Horizontal velocity stays constant."
+      },
+      {
+        q: "A 2-kg ball and an 8-kg ball are both thrown horizontally off the same balcony at the same speed. Ignoring air resistance, which one has the greater acceleration during flight?",
+        options: ["Both experience the same acceleration", "The 2-kg ball", "The 8-kg ball", "Neither one accelerates"],
+        correct: 0,
+        explain: "In projectile motion (no air resistance), all objects near Earth's surface accelerate downward at 9.8 m/s² regardless of mass."
+      },
+      {
+        q: "At the maximum height of a projectile's path, its vertical velocity is:",
+        options: ["Half of its initial vertical velocity", "0 m/s", "Equal to its initial vertical velocity", "Dependent on the launch angle"],
+        correct: 1,
+        explain: "By definition, the object stops rising and starts falling right at the peak, which means vertical velocity passes through exactly zero there."
+      },
+      {
+        q: "A model rocket is launched at 60° at 30 m/s. What is the vertical component of its acceleration during flight?",
+        options: ["9.8 m/s² upward", "9.8·sin(60°) m/s² downward", "9.8·sin(60°) m/s² upward", "9.8 m/s² downward"],
+        correct: 3,
+        explain: "Acceleration due to gravity is always 9.8 m/s² straight down — it doesn't depend on the launch angle. The angle only affects the velocity components, not the acceleration."
+      },
+      {
+        q: "A projectile launches at 50 m/s at 25° above horizontal. What is the approximate vertical component of its initial velocity?",
+        options: ["50 m/s", "45 m/s", "21 m/s", "0 m/s"],
+        correct: 2,
+        explain: "vᵧ₀ = v·sin(θ) = 50·sin(25°) ≈ 50 × 0.42 ≈ 21 m/s."
+      },
+      {
+        q: "A plane flying horizontally at a steady speed drops a crate. From the pilot's point of view (ignoring air resistance), the crate appears to fall:",
+        options: ["Straight down", "At a forward angle", "Behind the plane", "Ahead of the plane"],
+        correct: 0,
+        explain: "The crate keeps the plane's horizontal velocity the whole time it falls, so relative to the plane (which has that same horizontal velocity) it only appears to drop straight down."
+      },
+      {
+        q: "A marble rolls off a table and falls to the floor. Which statement about its motion is incorrect?",
+        options: [
+          "Gravity does not affect the marble's horizontal motion",
+          "The marble moves horizontally at constant speed the whole time",
+          "The marble accelerates horizontally, gaining 9.8 m/s of horizontal speed every second",
+          "The horizontal and vertical velocities are independent of each other"
+        ],
+        correct: 2,
+        explain: "This is the false statement — there is no horizontal acceleration in projectile motion. Horizontal speed stays constant; only vertical speed changes at 9.8 m/s² each second."
+      },
+      {
+        q: "Which of the following is NOT true for a projectile in flight (ignoring air resistance)?",
+        options: [
+          "The acceleration is constant throughout the motion",
+          "The horizontal velocity changes continuously",
+          "The path traced out is a parabola",
+          "The only force acting on it is gravity"
+        ],
+        correct: 1,
+        explain: "Horizontal velocity does NOT change during flight — that's the false statement. Acceleration is constant (9.8 m/s² down), gravity is the only force, and the path is indeed a parabola."
+      },
+      {
+        q: "Two arrows launch with the same speed at the same instant — one at 15° and one at 75° above horizontal. Which spends more time in the air?",
+        options: ["The one launched at 15°", "The one launched at 75°", "Both spend exactly the same time", "It depends on their masses"],
+        correct: 1,
+        explain: "A steeper angle sends more of the speed into the vertical component (vᵧ₀ = v·sin θ), which is larger for 75° than for 15°. A bigger vᵧ₀ means a longer time to rise and fall."
+      }
+    ];
+
+    var order = [];
+    var idx = 0;
+    var score = 0;
+    var answered = false;
+
+    var elNum = document.getElementById('quizNum');
+    var elQ = document.getElementById('quizQ');
+    var elOptions = document.getElementById('quizOptions');
+    var elExplain = document.getElementById('quizExplain');
+    var elNext = document.getElementById('quizNext');
+    var elScore = document.getElementById('quizScore');
+    var elProgress = document.getElementById('quizProgress');
+    var elCard = document.getElementById('quizCard');
+    var elDone = document.getElementById('quizDone');
+    var elDoneScore = document.getElementById('quizDoneScore');
+
+    function shuffle(arr){
+      var a = arr.slice();
+      for (var i=a.length-1; i>0; i--){
+        var j = Math.floor(Math.random()*(i+1));
+        var tmp = a[i]; a[i]=a[j]; a[j]=tmp;
+      }
+      return a;
+    }
+
+    function startQuiz(){
+      order = shuffle(bank.map(function(_, i){ return i; }));
+      idx = 0; score = 0; answered = false;
+      elCard.style.display = 'block';
+      elDone.classList.remove('show');
+      renderQuestion();
+    }
+
+    function renderQuestion(){
+      answered = false;
+      var q = bank[order[idx]];
+      elNum.textContent = 'Question ' + (idx+1) + ' of ' + order.length;
+      elQ.textContent = q.q;
+      elExplain.classList.remove('show');
+      elExplain.textContent = '';
+      elNext.disabled = true;
+      elScore.textContent = 'Score: ' + score + ' / ' + idx;
+      elProgress.style.width = (idx/order.length*100) + '%';
+
+      var optOrder = shuffle(q.options.map(function(_, i){ return i; }));
+      elOptions.innerHTML = '';
+      var letters = ['A','B','C','D'];
+      optOrder.forEach(function(origIdx, pos){
+        var btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.innerHTML = '<span class="tag">' + letters[pos] + '</span><span>' + q.options[origIdx] + '</span>';
+        btn.addEventListener('click', function(){
+          if (answered) return;
+          answered = true;
+          var isCorrect = origIdx === q.correct;
+          if (isCorrect) { score++; btn.classList.add('correct'); }
+          else {
+            btn.classList.add('incorrect');
+            // highlight the correct one too
+            Array.from(elOptions.children).forEach(function(child, ci){
+              if (optOrder[ci] === q.correct) child.classList.add('correct');
+            });
+          }
+          Array.from(elOptions.children).forEach(function(child){ child.disabled = true; });
+          elExplain.textContent = q.explain;
+          elExplain.classList.add('show');
+          elNext.disabled = false;
+          elScore.textContent = 'Score: ' + score + ' / ' + (idx+1);
+        });
+        elOptions.appendChild(btn);
+      });
+    }
+
+    elNext.addEventListener('click', function(){
+      idx++;
+      if (idx >= order.length){
+        elCard.style.display = 'none';
+        elDone.classList.add('show');
+        elDoneScore.textContent = score + ' / ' + order.length;
+        elProgress.style.width = '100%';
+      } else {
+        renderQuestion();
+      }
+    });
+
+    document.getElementById('restartQuiz').addEventListener('click', startQuiz);
+    document.getElementById('quizRedo').addEventListener('click', startQuiz);
+
+    startQuiz();
+  })();
+
+  /* ============ PROBLEM SOLVING ============ */
+  (function problems(){
+    var g = 9.8;
+    var currentType = 'horizontalCliff';
+    var currentProblem = null;
+
+    var elBtns = document.querySelectorAll('.prob-type-btn');
+    var elStatement = document.getElementById('probStatement');
+    var elAnswerRow = document.getElementById('probAnswerRow');
+    var elFeedback = document.getElementById('probFeedback');
+    var elSteps = document.getElementById('probSteps');
+    var elCheck = document.getElementById('probCheck');
+    var elSolution = document.getElementById('probSolution');
+    var elNew = document.getElementById('probNew');
+
+    function rand(min, max, step){
+      step = step || 1;
+      var n = Math.round((min + Math.random()*(max-min)) / step) * step;
+      return Math.round(n*10)/10;
+    }
+    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    var contexts = ['soccer ball', 'baseball', 'water balloon', 'javelin', 'frisbee', 'arrow', 'model rocket', 'golf ball'];
+    var cliffContexts = ['a cliff', 'the roof of a building', 'a balcony', 'a bridge'];
+
+    function genHorizontalCliff(){
+      var h = rand(6, 24, 1);
+      var v = rand(8, 22, 1);
+      var t = Math.sqrt(2*h/g);
+      var range = v*t;
+      var obj = pick(contexts);
+      var place = pick(cliffContexts);
+      return {
+        statement: 'A ' + obj + ' is launched horizontally off <span class="val">' + place + '</span>, ' +
+          '<span class="val">' + h + ' m</span> high, with a speed of <span class="val">' + v + ' m/s</span>. ' +
+          'How far from the base does it land?',
+        unit: 'm',
+        answer: range,
+        tolerance: 0.05,
+        inputs: [{label:'Range', id:'ans1'}],
+        steps:
+          'Step 1 — Vertical motion finds time:\n' +
+          'Δy = ½ g t²  →  ' + h + ' = ½ (9.8) t²\n' +
+          't = √(2·' + h + ' / 9.8) = ' + t.toFixed(2) + ' s\n\n' +
+          'Step 2 — Horizontal motion finds distance:\n' +
+          'Δx = v₀ₓ · t = ' + v + ' × ' + t.toFixed(2) + ' = ' + range.toFixed(1) + ' m'
+      };
+    }
+
+    function genAngleGround(){
+      var v = rand(12, 28, 1);
+      var ang = rand(20, 65, 1);
+      var rad = ang*Math.PI/180;
+      var vx = v*Math.cos(rad), vy = v*Math.sin(rad);
+      var tFlight = 2*vy/g;
+      var range = vx*tFlight;
+      var obj = pick(contexts);
+      return {
+        statement: 'A ' + obj + ' is launched from ground level at <span class="val">' + ang + '°</span> above horizontal ' +
+          'with a speed of <span class="val">' + v + ' m/s</span>. It lands at the same height it was launched from. ' +
+          'How far horizontally does it travel before landing?',
+        unit: 'm',
+        answer: range,
+        tolerance: 0.05,
+        inputs: [{label:'Range', id:'ans1'}],
+        steps:
+          'Step 1 — Components:\n' +
+          'v₀ₓ = ' + v + '·cos(' + ang + '°) = ' + vx.toFixed(2) + ' m/s\n' +
+          'v₀ᵧ = ' + v + '·sin(' + ang + '°) = ' + vy.toFixed(2) + ' m/s\n\n' +
+          'Step 2 — Time of flight (launch and land at same height):\n' +
+          't = 2v₀ᵧ / g = 2(' + vy.toFixed(2) + ') / 9.8 = ' + tFlight.toFixed(2) + ' s\n\n' +
+          'Step 3 — Range:\n' +
+          'Δx = v₀ₓ · t = ' + vx.toFixed(2) + ' × ' + tFlight.toFixed(2) + ' = ' + range.toFixed(1) + ' m'
+      };
+    }
+
+    function genComponents(){
+      var v = rand(10, 40, 1);
+      var ang = rand(15, 70, 1);
+      var rad = ang*Math.PI/180;
+      var vx = v*Math.cos(rad), vy = v*Math.sin(rad);
+      var obj = pick(contexts);
+      return {
+        statement: 'A ' + obj + ' is launched at <span class="val">' + v + ' m/s</span> at an angle of ' +
+          '<span class="val">' + ang + '°</span> above horizontal. Find its initial horizontal and vertical velocity components.',
+        unit: 'm/s',
+        answer: [vx, vy],
+        tolerance: 0.05,
+        inputs: [{label:'vₓ₀', id:'ans1'}, {label:'vᵧ₀', id:'ans2'}],
+        steps:
+          'vₓ₀ = v·cos(θ) = ' + v + '·cos(' + ang + '°) = ' + vx.toFixed(2) + ' m/s\n' +
+          'vᵧ₀ = v·sin(θ) = ' + v + '·sin(' + ang + '°) = ' + vy.toFixed(2) + ' m/s'
+      };
+    }
+
+    var generators = { horizontalCliff: genHorizontalCliff, angleGround: genAngleGround, components: genComponents };
+
+    function renderInputs(problem){
+      elAnswerRow.innerHTML = '';
+      problem.inputs.forEach(function(inp){
+        var label = document.createElement('span');
+        label.textContent = inp.label + ' =';
+        label.style.fontFamily = 'var(--font-mono)';
+        label.style.fontSize = '0.9rem';
+        var input = document.createElement('input');
+        input.type = 'number';
+        input.step = 'any';
+        input.id = inp.id;
+        var unit = document.createElement('span');
+        unit.className = 'prob-unit';
+        unit.textContent = problem.unit;
+        elAnswerRow.appendChild(label);
+        elAnswerRow.appendChild(input);
+        elAnswerRow.appendChild(unit);
+      });
+    }
+
+    function newProblem(){
+      currentProblem = generators[currentType]();
+      elStatement.innerHTML = currentProblem.statement;
+      renderInputs(currentProblem);
+      elFeedback.textContent = '';
+      elFeedback.className = 'feedback-line';
+      elSteps.classList.remove('show');
+      elSteps.textContent = currentProblem.steps;
+    }
+
+    function checkAnswer(){
+      if (!currentProblem) return;
+      var okAll = true;
+      currentProblem.inputs.forEach(function(inp, i){
+        var el = document.getElementById(inp.id);
+        var val = parseFloat(el.value);
+        var target = Array.isArray(currentProblem.answer) ? currentProblem.answer[i] : currentProblem.answer;
+        if (isNaN(val) || Math.abs(val-target) > Math.max(0.3, Math.abs(target)*currentProblem.tolerance)){
+          okAll = false;
+        }
+      });
+      if (okAll){
+        elFeedback.textContent = 'Correct — nice work.';
+        elFeedback.className = 'feedback-line ok';
+      } else {
+        elFeedback.textContent = 'Not quite. Check your work, or show the solution below.';
+        elFeedback.className = 'feedback-line no';
+      }
+    }
+
+    elBtns.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        elBtns.forEach(function(b){ b.setAttribute('aria-pressed','false'); });
+        btn.setAttribute('aria-pressed','true');
+        currentType = btn.getAttribute('data-type');
+        newProblem();
+      });
+    });
+
+    elCheck.addEventListener('click', checkAnswer);
+    elSolution.addEventListener('click', function(){ elSteps.classList.toggle('show'); });
+    elNew.addEventListener('click', newProblem);
+
+    newProblem();
+  })();
+
+  /* ============ LAUNCH SIMULATOR ============ */
+  (function simulator(){
+    var g = 9.8;
+    var speedSlider = document.getElementById('simSpeed');
+    var angleSlider = document.getElementById('simAngle');
+    var heightSlider = document.getElementById('simHeight');
+    var speedOut = document.getElementById('simSpeedOut');
+    var angleOut = document.getElementById('simAngleOut');
+    var heightOut = document.getElementById('simHeightOut');
+    var canvas = document.getElementById('simCanvas');
+    var ctx = canvas.getContext('2d');
+    var elT = document.getElementById('simT');
+    var elY = document.getElementById('simY');
+    var elX = document.getElementById('simX');
+    var elVy = document.getElementById('simVy');
+    var elLaunch = document.getElementById('simLaunch');
+    var elReset = document.getElementById('simReset');
+    var elGuess = document.getElementById('simGuess');
+    var elFeedback = document.getElementById('simFeedback');
+
+    var animId = null;
+    var animating = false;
+
+    function color(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+    function resize(){
+      var rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * devicePixelRatio;
+      canvas.height = rect.height * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+      if (!animating) drawStatic(0);
+    }
+    window.addEventListener('resize', resize);
+    window.addEventListener('tabchange', function(e){ if (e.detail === 'sim') resize(); });
+
+    function params(){
+      var v = parseFloat(speedSlider.value);
+      var ang = parseFloat(angleSlider.value) * Math.PI/180;
+      var h = parseFloat(heightSlider.value);
+      var vx = v*Math.cos(ang), vy0 = v*Math.sin(ang);
+      var tLand = (vy0 + Math.sqrt(vy0*vy0 + 2*g*h)) / g;
+      var range = vx*tLand;
+      var maxHeight = h + (vy0*vy0)/(2*g);
+      return { v:v, ang:ang, h:h, vx:vx, vy0:vy0, tLand:tLand, range:range, maxHeight:maxHeight };
+    }
+
+    function drawStatic(tNow, trail){
+      var p = params();
+      var rect = canvas.getBoundingClientRect();
+      var W = rect.width, H = rect.height;
+      ctx.clearRect(0,0,W,H);
+
+      var padL = 40, padR = 16, padT = 20, padB = 30;
+      var worldW = Math.max(p.range, 5) * 1.08;
+      var worldH = Math.max(p.maxHeight, p.h, 5) * 1.15;
+      var scaleX = (W-padL-padR)/worldW;
+      var scaleY = (H-padT-padB)/worldH;
+      var scale = Math.min(scaleX, scaleY);
+      var originX = padL;
+      var originY = H - padB;
+
+      // grid
+      ctx.strokeStyle = color('--grid-line');
+      ctx.lineWidth = 1;
+      var gridStep = 5;
+      for (var gx=0; gx<=worldW; gx+=gridStep){
+        var px = originX + gx*scale;
+        ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, originY); ctx.stroke();
+      }
+      for (var gy=0; gy<=worldH; gy+=gridStep){
+        var py = originY - gy*scale;
+        ctx.beginPath(); ctx.moveTo(originX, py); ctx.lineTo(W-padR, py); ctx.stroke();
+      }
+
+      // axes
+      ctx.strokeStyle = color('--border-strong');
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(originX, padT); ctx.lineTo(originX, originY); ctx.lineTo(W-padR, originY); ctx.stroke();
+
+      ctx.fillStyle = color('--ink-faint');
+      ctx.font = '10px ' + "'IBM Plex Mono', monospace";
+      ctx.fillText('0', originX-4, originY+14);
+      ctx.fillText(Math.round(worldW) + ' m', W-padR-30, originY+14);
+
+      // launch platform
+      if (p.h > 0){
+        ctx.fillStyle = color('--panel');
+        ctx.strokeStyle = color('--border-strong');
+        ctx.beginPath();
+        ctx.rect(originX-8, originY - p.h*scale, 8, p.h*scale);
+        ctx.fill(); ctx.stroke();
+      }
+
+      // full trajectory (faint)
+      ctx.beginPath();
+      ctx.strokeStyle = color('--grid-line-strong');
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([5,4]);
+      for (var tt=0; tt<=p.tLand; tt+=p.tLand/80){
+        var x = p.vx*tt, y = p.h + p.vy0*tt - 0.5*g*tt*tt;
+        var pxp = originX + x*scale, pyp = originY - y*scale;
+        if (tt===0) ctx.moveTo(pxp,pyp); else ctx.lineTo(pxp,pyp);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // guess marker
+      var guessVal = parseFloat(elGuess.value);
+      if (!isNaN(guessVal)){
+        var gxp = originX + guessVal*scale;
+        ctx.strokeStyle = color('--crimson');
+        ctx.setLineDash([3,3]);
+        ctx.beginPath(); ctx.moveTo(gxp, padT); ctx.lineTo(gxp, originY); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // traveled trail + ball
+      var t = tNow;
+      var xb = p.vx*t, yb = p.h + p.vy0*t - 0.5*g*t*t;
+      if (yb < 0) yb = 0;
+      ctx.beginPath();
+      ctx.strokeStyle = color('--gold-ink');
+      ctx.lineWidth = 2.5;
+      for (var s=0; s<=t; s+=Math.max(t/60,0.001)){
+        var xs = p.vx*s, ys = p.h + p.vy0*s - 0.5*g*s*s;
+        var pxs = originX + xs*scale, pys = originY - ys*scale;
+        if (s===0) ctx.moveTo(pxs,pys); else ctx.lineTo(pxs,pys);
+      }
+      ctx.stroke();
+
+      var pxb = originX + xb*scale, pyb = originY - yb*scale;
+      ctx.beginPath();
+      ctx.fillStyle = color('--gold');
+      ctx.strokeStyle = color('--border-strong');
+      ctx.arc(pxb, pyb, 6, 0, Math.PI*2);
+      ctx.fill(); ctx.stroke();
+
+      var vy = p.vy0 - g*t;
+      elT.textContent = t.toFixed(2) + ' s';
+      elY.textContent = Math.max(yb,0).toFixed(1) + ' m';
+      elX.textContent = xb.toFixed(1) + ' m';
+      elVy.textContent = vy.toFixed(1) + ' m/s';
+    }
+
+    function launch(){
+      if (animating) return;
+      var p = params();
+      var start = null;
+      var duration = Math.min(Math.max(p.tLand, 0.6), 6); // seconds of real animation time, scaled
+      var speedFactor = p.tLand / duration;
+      animating = true;
+      elFeedback.textContent = '';
+
+      function step(ts){
+        if (!start) start = ts;
+        var elapsed = (ts - start)/1000 * speedFactor;
+        if (elapsed >= p.tLand){
+          drawStatic(p.tLand);
+          animating = false;
+          reportLanding(p);
+          return;
+        }
+        drawStatic(elapsed);
+        animId = requestAnimationFrame(step);
+      }
+      animId = requestAnimationFrame(step);
+    }
+
+    function reportLanding(p){
+      var guessVal = parseFloat(elGuess.value);
+      var msg = 'Landed at ' + p.range.toFixed(1) + ' m, after ' + p.tLand.toFixed(2) + ' s, max height ' + p.maxHeight.toFixed(1) + ' m.';
+      if (!isNaN(guessVal)){
+        var diff = Math.abs(guessVal - p.range);
+        if (diff <= Math.max(0.5, p.range*0.05)){
+          msg += ' Your guess was right on target.';
+          elFeedback.className = 'feedback-line ok';
+        } else {
+          msg += ' Your guess of ' + guessVal + ' m was off by ' + diff.toFixed(1) + ' m.';
+          elFeedback.className = 'feedback-line no';
+        }
+      } else {
+        elFeedback.className = 'feedback-line';
+      }
+      elFeedback.textContent = msg;
+    }
+
+    function resetSim(){
+      if (animId) cancelAnimationFrame(animId);
+      animating = false;
+      elFeedback.textContent = '';
+      elFeedback.className = 'feedback-line';
+      drawStatic(0);
+    }
+
+    [speedSlider, angleSlider, heightSlider].forEach(function(el){
+      el.addEventListener('input', function(){
+        speedOut.textContent = speedSlider.value;
+        angleOut.textContent = angleSlider.value;
+        heightOut.textContent = heightSlider.value;
+        if (!animating) drawStatic(0);
+      });
+    });
+    elGuess.addEventListener('input', function(){ if(!animating) drawStatic(0); });
+
+    elLaunch.addEventListener('click', launch);
+    elReset.addEventListener('click', resetSim);
+
+    resize();
+  })();
+
+})();
+</script>
+</body>
+</html>
